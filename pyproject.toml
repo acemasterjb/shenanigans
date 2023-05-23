@@ -1,0 +1,28 @@
+[project]
+name = "shenanigans"
+version = "0.1.0"
+description = "Investigating Snapshot spaces with questionable motives."
+authors = [
+    { name = "Jamil Bousquet", email = "jamil.bousquet@gmail.com" }
+]
+dependencies = [
+    "aiohttp==3.8.4",
+    "gql==3.4.0",
+    "httpx==0.23.3",
+    "jupyter-book==0.13.1",
+    "matplotlib==3.6.2",
+    "openpyxl==3.0.10",
+    "pandas==1.5.2",
+    "python-dotenv~=1.0.0",
+]
+readme = "README.md"
+requires-python = ">= 3.10"
+license = { text = "MIT" }
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.rye]
+managed = true
+dev-dependencies = ["black~=23.3.0"]
