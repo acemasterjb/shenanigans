@@ -6,7 +6,6 @@ from .apis.deepdao.adapters import (
 from .apis.deepdao.queries import (
     get_raw_dao_data,
     get_raw_dao_list,
-    get_raw_token_metadata,
 )
 from .apis.dune.queries import get_raw_space_list
 from .apis.snapshot.execution import get_space
@@ -27,7 +26,7 @@ def get_governance_strategy(raw_strategy: dict[str, Any]):
 def get_strategies(raw_strategies: list[dict[str, Any]]) -> list[str]:
     strategies = []
     for raw_strategy in raw_strategies:
-        maybe_params = raw_strategy.get("params")
+        maybe_params: dict[str, Any] = raw_strategy.get("params")
         if not maybe_params:
             continue
         payload = dict()
@@ -38,6 +37,8 @@ def get_strategies(raw_strategies: list[dict[str, Any]]) -> list[str]:
                 continue
             else:
                 payload.update(get_governance_strategy(raw_strategy))
+                if not payload:
+                    continue
         else:
             payload.update(
                 {
@@ -47,8 +48,7 @@ def get_strategies(raw_strategies: list[dict[str, Any]]) -> list[str]:
                 }
             )
 
-        if payload:
-            strategies.append(payload)
+        strategies.append(payload)
     return strategies
 
 
@@ -72,23 +72,16 @@ def sanitize_space(space: dict):
 
 async def get_dao_metadata(raw_dao: dict) -> dict[str, Any]:
     raw_dao_id = raw_dao.get("organizationId")
-    raw_dao_token_metadata = await get_raw_token_metadata(raw_dao_id)
     raw_dao_data = get_raw_dao_data(raw_dao_id)
     dao_snapshot_id = get_snapshot_id(raw_dao_data)
 
-    return {
-        "id": raw_dao_id,
-        "token_metadata": raw_dao_token_metadata,
-        "snapshot_id": dao_snapshot_id,
-    }
+    return dao_snapshot_id
 
 
 async def get_single_dao_snapshot(raw_dao: dict) -> dict[str, dict] | None:
     print(f"Getting raw snapshot data for {raw_dao['daoName']}")
     dao_metadata = await get_dao_metadata(raw_dao)
-    if not dao_metadata.get("token_metadata"):
-        return None
-    _, _, dao_snapshot_id = dao_metadata.values()
+    dao_snapshot_id = dao_metadata
     if not dao_snapshot_id:
         return None
 

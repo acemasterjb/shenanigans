@@ -26,22 +26,6 @@ def get_raw_dao_list(limit: int) -> list[dict]:
         return try_to_get_json_from_resp(resp, "daosSummary", [dict()])
 
 
-async def get_raw_token_metadata(organization_id: str) -> dict[str, str]:
-    url = f"https://deepdao-server.deepdao.io/discussion/{organization_id}/projectToken"
-
-    async with AsyncClient(headers=headers, timeout=TIMEOUT) as client:
-        resp = await client.get(url)
-        return try_to_get_json_from_resp(resp, "data", dict())
-
-
-async def get_raw_organization_data(organization_id: str) -> dict[str, Any]:
-    url = f"https://deepdao-server.deepdao.io/organization/ksdf3ksa-937slj3/{organization_id}"
-
-    async with AsyncClient(headers=headers, timeout=TIMEOUT) as client:
-        resp = await client.get(url)
-        return try_to_get_json_from_resp(resp, "data", dict())
-
-
 def get_raw_dao_data(organization_id: str) -> list[dict]:
     url = f"https://deepdao-server.deepdao.io/organization/ksdf3ksa-937slj3/{organization_id}/dao"
 
@@ -49,11 +33,3 @@ def get_raw_dao_data(organization_id: str) -> list[dict]:
         resp = client.get(url)
 
         return try_to_get_json_from_resp(resp, "data", [dict()])
-
-
-def get_raw_top_holders(organization_id: str) -> list[dict]:
-    url = f"https://deepdao-server.deepdao.io/organization/ksdf3ksa-937slj3/{organization_id}/top-shareholders"
-
-    with Client(headers=headers, timeout=TIMEOUT) as client:
-        resp = client.get(url)
-        return try_to_get_json_from_resp(resp, "shareholders", [dict()])

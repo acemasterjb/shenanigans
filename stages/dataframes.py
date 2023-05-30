@@ -1,9 +1,4 @@
-from pprint import PrettyPrinter
-
 import pandas as pd
-
-
-pp = PrettyPrinter(2)
 
 
 def get_spaces_dataframe(sanitized_spaces: list[dict]) -> pd.DataFrame:
