@@ -15,7 +15,14 @@ Investigating Snapshot spaces with questionable motives.
 $ python main.py
 ```
 
-A `nonsense_daos.csv` file will be generated within [data](./data/) filled with metadata of Snapshot spaces that:
+This produces:
 
-1. have the same token as a given subject (right now Aave is used as an example, you can change this in [main](./main.py))
+- a `nonsense_daos.csv` file in [`./data/`](./data/)
+- multiple `*.csv` data files in [`./data/vote`](./data/vote)
+
+The `nonsense_daos.csv` file contains metadata of Snapshot spaces that:
+
+1. have the same token as a given subject (right now Aave is used as an example, you can change this in [main](./main.py#L142))
 2. have the same/similar name as a given subject
+
+The multiple `*.csv` files generated contain vote data of (up to) the last 150 proposals from daos listed in `nonsense_daos.csv`.

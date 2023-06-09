@@ -8,8 +8,27 @@ from .apis.deepdao.queries import (
     get_raw_dao_list,
 )
 from .apis.dune.queries import get_raw_space_list
-from .apis.snapshot.execution import get_space
+from .apis.snapshot.execution import get_proposals, get_space, get_votes
 from .data_processing.filters import find_dao
+
+
+async def get_all_proposals(
+    nonsense_spaces: list[tuple[str, str]]
+) -> dict[str, list[dict]]:
+    all_spaces_proposals = dict()
+
+    for space_id, space_name in nonsense_spaces:
+        print(f"Getting vote data for {space_name}...")
+        space_proposals: list[dict] = [
+            proposal
+            | await get_votes(proposal.get("id", ""))
+            | {"space_id": space_id, "space_name": space_name}
+            async for proposal in get_proposals(space_id)
+        ]
+
+        all_spaces_proposals[space_name] = space_proposals
+
+    return all_spaces_proposals
 
 
 def get_governance_strategy(raw_strategy: dict[str, Any]):

@@ -1,42 +1,31 @@
-from asyncio import run as run_asyncio
-from os.path import exists
-from pprint import PrettyPrinter
+from numpy import concatenate
 
-import pandas as pd
+from stages import (
+    export_vote_data_to_csv,
+    get_complete_vote_data_dfs,
+    get_nonsense_dao_data,
+    get_nonsense_dao_proposals_dfs,
+    get_raw_nonsense_proposals,
+)
 
-from stages import dataframes, extract, export
-from stages.data_processing import filters
-
-pp = PrettyPrinter()
 
 if __name__ == "__main__":
-    nonsense_daos_df = pd.DataFrame()
-
-    if not exists("./data/nonsense_daos.csv"):
-        subject = run_asyncio(extract.dao_snapshot_data_for("Aave"))
-
-        spaces = run_asyncio(extract.dao_snapshot_data())
-        spaces_df = (
-            dataframes.get_spaces_dataframe(spaces)
-            .drop_duplicates(["space_id"])
-            .drop(["space_id"], axis=1)
-        )
-
-        nonsense_daos_df = pd.concat(
-            [
-                filters.get_nonsense_daos_by_token_df(spaces_df, subject),
-                filters.get_nonsense_daos_by_space_name_df(spaces_df, subject),
-            ]
-        )
-
-        export.dataframe_to_csv(nonsense_daos_df, "./data/nonsense_daos.csv")
-    else:
-        nonsense_daos_df = pd.read_csv(
-            "./data/nonsense_daos.csv",
-            index_col=0,
-        )
-
     space_id_whitelist = ["aave.eth", "aavegotchi.eth", "butteryaave.eth"]
+    nonsense_daos_df = get_nonsense_dao_data("Aave")
     nonsense_daos_df = nonsense_daos_df.drop(space_id_whitelist, axis=0)
 
-    pp.pprint(nonsense_daos_df)
+    raw_nonsense_proposals = get_raw_nonsense_proposals(nonsense_daos_df)
+
+    nonsense_proposals_votes = {
+        space_name: list(
+            concatenate([proposal["votes"] for proposal in proposals]).flat
+        )
+        for space_name, proposals in raw_nonsense_proposals.items()
+    }
+
+    nonsense_daos_proposal_dfs = get_nonsense_dao_proposals_dfs(raw_nonsense_proposals)
+    complete_vote_data_dfs = get_complete_vote_data_dfs(
+        nonsense_proposals_votes, nonsense_daos_proposal_dfs
+    )
+
+    export_vote_data_to_csv(complete_vote_data_dfs)
