@@ -1,15 +1,22 @@
+import os
 from typing import Any
 
 import pandas as pd
 
 
 def export_vote_data_to_csv(
-    complete_vote_data_dfs: dict[str, pd.DataFrame], identifier: str = ""
+    complete_vote_data_dfs: dict[str, pd.DataFrame], csv_name: str
 ):
+    if os.path.exists(f"./data/vote/{csv_name}.csv.gzip"):
+        os.remove(f"./data/vote/{csv_name}.csv.gzip")
+
     for space_name, space_vote_data_df in complete_vote_data_dfs.items():
-        print(f"generating csv for {space_name}...")
+        print(f"generating csv data for {space_name}...")
         space_vote_data_df.to_csv(
-            "./data/vote/" + space_name + identifier + ".csv", chunksize=50
+            f"./data/vote/{csv_name}.csv.gzip",
+            mode="a+",
+            compression="gzip",
+            chunksize=50,
         )
 
 
